@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/AyoHttp.iml" filepath="$PROJECT_DIR$/AyoHttp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/adapter-okhttp/adapter-okhttp.iml" filepath="$PROJECT_DIR$/adapter-okhttp/adapter-okhttp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ayohttp/ayohttp.iml" filepath="$PROJECT_DIR$/ayohttp/ayohttp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ayohttp222/ayohttp222.iml" filepath="$PROJECT_DIR$/ayohttp222/ayohttp222.iml" />
+    </modules>
+  </component>
+</project>

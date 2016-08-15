@@ -1,0 +1,1 @@
+include ':app', ':ayohttp222', ':ayohttp', ':adapter-okhttp'
