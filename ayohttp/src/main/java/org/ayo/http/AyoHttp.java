@@ -3,38 +3,54 @@ package org.ayo.http;
 import android.text.TextUtils;
 
 import org.ayo.http.callback.BaseHttpCallback;
+import org.ayo.http.converter.ResponseConverter;
+import org.ayo.http.converter.TypeToken;
+import org.ayo.http.stream.StreamConverter;
+import org.ayo.http.utils.HttpHelper;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Administrator on 2016/8/16.
  */
 public class AyoHttp {
 
     private AyoHttp(){
     }
 
-    public static AyoHttp newInstance(){
+    public static AyoHttp request(){
         AyoHttp r = new AyoHttp();
         return r;
     }
 
+    public TypeToken token;
+
+    public long connectionTimeout = 30000;
+    public long writeTimeout = 30000;
+    public long readTimeout = 30000;
+
     public Map<String, String> params = new HashMap<String, String>();
     public Map<String, String> pathParams = new HashMap<String, String>();
+    public Map<String, String> queryStrings = new HashMap<>();
+
+
     public Map<String, String> headers = new HashMap<String, String>();
     public Map<String, File> files = new HashMap<String, File>();
+
     public String stringEntity;
+
     public File file;  //post一个file，不知道这是什么原理，不过和表单提交不一样
+
     public String url = "";
     public String method = "get";
     public String flag = "";
-    public HttpAdapter worker;
+    public HttpWorker worker;
 
     public HttpIntercepter intercepter;
+    public StreamConverter<?> streamConverter;
     public TopLevelConverter topLevelConverter;
-    public ResonseConverter resonseConverter;
+    public ResponseConverter resonseConverter;
     public BaseHttpCallback<?> callback;
 
 
@@ -48,12 +64,41 @@ public class AyoHttp {
         return this;
     }
 
+    public AyoHttp connectionTimeout(long time){
+        connectionTimeout = time;
+        return this;
+    }
+
+    public AyoHttp writeTimeout(long time){
+        writeTimeout = time;
+        return this;
+    }
+
+    public AyoHttp readTimeout(long time){
+        readTimeout = time;
+        return this;
+    }
+
+    ///---------------
     public AyoHttp param(String name, String value){
-        if(this.params == null) this.params = new HashMap<String, String>();
         if(value == null) value = "";
         params.put(name, value);
         return this;
     }
+
+    public AyoHttp queryString(String name, String value){
+        if(value == null) value = "";
+        queryStrings.put(name, value);
+        return this;
+    }
+
+    public AyoHttp path(String name, String value){
+        if(value == null) value = "";
+        pathParams.put(name, value);
+        return this;
+    }
+
+    //--------------
 
     private boolean uploadFile = false;
     private boolean needCompress = false;
@@ -70,11 +115,6 @@ public class AyoHttp {
         return this;
     }
 
-    public AyoHttp path(String name, String value){
-        if(this.pathParams == null) this.pathParams = new HashMap<String, String>();
-        pathParams.put(name, value);
-        return this;
-    }
 
     public AyoHttp header(String name, String value){
         if(this.headers == null) this.headers = new HashMap<String, String>();
@@ -82,10 +122,38 @@ public class AyoHttp {
         return this;
     }
 
-    public AyoHttp method(String method){
-        this.method = method;
+    ///------------
+    public AyoHttp actionGet(){
+        this.method = "get";
         return this;
     }
+
+    public AyoHttp actionPost(){
+        this.method = "post";
+        return this;
+    }
+
+    public AyoHttp actionPut(){
+        this.method = "put";
+        return this;
+    }
+
+    public AyoHttp actionDelete(){
+        this.method = "delete";
+        return this;
+    }
+
+    public AyoHttp actionHead(){
+        this.method = "head";
+        return this;
+    }
+
+    public AyoHttp actionPatch(){
+        this.method = "patch";
+        return this;
+    }
+
+    ///--------------
 
     /**
      * don't know how to pass this in volly, now just work in xutils
@@ -102,13 +170,49 @@ public class AyoHttp {
         return this;
     }
 
-    public AyoHttp adapter(HttpAdapter worker){
+    public AyoHttp worker(HttpWorker worker){
         this.worker = worker;
         return this;
     }
 
+    public <T> AyoHttp streamConverter(StreamConverter<T> converter){
+        this.streamConverter = converter;
+        return this;
+    }
 
-    public <T> void fire(){
+    public AyoHttp topLevelConverter(TopLevelConverter converter){
+        this.topLevelConverter = converter;
+        return this;
+    }
+
+    public AyoHttp resonseConverter(ResponseConverter converter){
+        this.resonseConverter = converter;
+        return this;
+    }
+
+    public AyoHttp intercept(HttpIntercepter h){
+        this.intercepter = h;
+        return this;
+    }
+
+    public <T> AyoHttp callback(BaseHttpCallback<T> h, TypeToken<T> tTypeToken){
+        this.callback = h;
+        token = tTypeToken;
+        return this;
+    }
+
+    public void fire(){
+
+        //替换路径参数，类似http://www.xaax.com/id/{id}中的{id}
+        if(this.pathParams.size() > 0){
+            for(String key: this.pathParams.keySet()){
+                this.url = this.url.replace("{" + key + "}", this.pathParams.get(key) + "");
+            }
+        }
+
+        //如果是get请求，需要把param拼到url里
+        this.url = HttpHelper.makeURL(this.url, this.queryStrings);
+
         worker.fire(this);
     }
 

@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 
 Properties configer = new Properties()
 configer.load(new FileInputStream(file("../config.properties")))
@@ -8,7 +8,6 @@ android {
     buildToolsVersion configer['buildToolsVersion']
 
     defaultConfig {
-        applicationId "org.ayo.http.sample"
         minSdkVersion Integer.valueOf(configer['minSdkVersion'])
         targetSdkVersion Integer.valueOf(configer['targetSdkVersion'])
         versionCode Integer.valueOf(configer['versionCode_qq'])
@@ -20,14 +19,19 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+            java.srcDirs = ['src/main/java']
+        }
+    }
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile fileTree(dir: 'libs', include: ['*.jar'])
     compile configer['lib_appcompat']
-    compile configer['lib_recyclerview']
-    compile configer['lib_design']
-    compile project(':converter-fastjson')
-    compile project(':worker-okhttp')
+    compile 'com.squareup.okhttp3:okhttp:3.2.0'
     compile project(':ayohttp')
 }
+
+
