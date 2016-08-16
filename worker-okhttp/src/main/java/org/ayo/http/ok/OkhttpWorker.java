@@ -29,9 +29,12 @@ import okhttp3.Response;
  */
 public class OkhttpWorker extends HttpWorker {
 
+    TypeToken typeToken;
 
     @Override
     protected void fire(AyoHttp request) {
+        typeToken = request.token;
+        request.intercepter.beforeRequest(request);
 
         OkHttpUtils.getInstance().setConnectTimeout(30000, TimeUnit.MILLISECONDS); //连接超时，30秒
         OkHttpUtils.getInstance().setReadTimeout(30000, TimeUnit.MILLISECONDS); //读超时，30秒
@@ -42,14 +45,13 @@ public class OkhttpWorker extends HttpWorker {
         String url = request.url;
         //基于OkHttpUtils辅助类
 
-
         //1 method决定了OkHttpRequestBuilder的哪个子类
         if(request.method.equalsIgnoreCase("get")){
             OkHttpUtils
                     .get()
-                    .headers(request.headers)
-                    .url(url)
                     .tag(request.flag)
+                    .url(url)
+                    .headers(request.headers)
                     .build()
                     .execute(new MyStringCallback(request,  request.callback));
         }else if(request.method.equalsIgnoreCase("post")){
@@ -61,10 +63,10 @@ public class OkhttpWorker extends HttpWorker {
             if(!hasStringEntity && !postFileLikeForm && !postFileLikeStream){
                 OkHttpUtils
                         .post()//
+                        .tag(request.flag)
                         .url(url)
                         .headers(request.headers)
                         .params(request.params)
-                        .tag(request.flag)
                         .build()
                         .execute(new MyStringCallback(request, request.callback));
             }
@@ -74,35 +76,72 @@ public class OkhttpWorker extends HttpWorker {
             if(hasStringEntity){
                 OkHttpUtils
                         .postString()
+                        .tag(request.flag)
                         .url(url)
                         .headers(request.headers)
                         .mediaType(MediaType.parse("application/json; charset=utf-8"))
                         .content(request.stringEntity)
-                        .tag(request.flag)
                         .build()
                         .execute(new MyStringCallback(request, request.callback));
             }else if(postFileLikeStream){
                 OkHttpUtils
                         .postFile()
+                        .tag(request.flag)
                         .url(url)
                         .headers(request.headers)//
                         .file(request.file)
                         .build()
                         .execute(new MyStringCallback(request, request.callback));
             }else if(postFileLikeForm){
-                PostFormBuilder b = OkHttpUtils.post();
+                PostFormBuilder b = OkHttpUtils.post().tag(request.flag).url(request.url);
                 for(String key: request.files.keySet()){
                     File f = request.files.get(key);
                     b.addFile(key, f.getName(), f);
                 }
 
-                b.url(url)//
-                        .params(request.params)//
-                        .headers(request.headers)//
-                        .build()//
+                b.url(url)
+                        .params(request.params)
+                        .headers(request.headers)
+                        .build()
                         .execute(new MyStringCallback(request, request.callback));
             }
 
+        }else if(request.method.equalsIgnoreCase("put")){
+            OkHttpUtils
+                    .put()
+                    .tag(request.flag)
+                    .url(url)
+                    .headers(request.headers)
+                    .requestBody("???")
+                    .build()
+                    .execute(new MyStringCallback(request, request.callback));
+        }else if(request.method.equalsIgnoreCase("delete")){
+            OkHttpUtils
+                    .delete()
+                    .tag(request.flag)
+                    .url(url)
+                    .headers(request.headers)
+                    .requestBody("???")
+                    .build()
+                    .execute(new MyStringCallback(request, request.callback));
+        }else if(request.method.equalsIgnoreCase("head")){
+            OkHttpUtils
+                    .head()
+                    .tag(request.flag)
+                    .url(url)
+                    .headers(request.headers)
+                    .params(request.params)
+                    .build()
+                    .execute(new MyStringCallback(request, request.callback));
+        }else if(request.method.equalsIgnoreCase("patch")){
+            OkHttpUtils
+                    .patch()
+                    .tag(request.flag)
+                    .url(url)
+                    .headers(request.headers)
+                    .requestBody("???")
+                    .build()
+                    .execute(new MyStringCallback(request, request.callback));
         }else{
             throw new RuntimeException("使用了不支持的http谓词：" + request.method);
         }
@@ -144,13 +183,12 @@ public class OkhttpWorker extends HttpWorker {
         @Override
         public void onResponse(String response)
         {
-            //Log.i("dddddd", "onResponse--" + response);
-
+            request.intercepter.beforeTopLevelConvert(response);
             String s = request.topLevelConverter.convert(response, callback);
             if(s != null){
                 T bean = null;
                 try {
-                    bean = request.resonseConverter.convert(s, new TypeToken<T>() {});
+                    bean = (T) request.resonseConverter.convert(s, typeToken);
                 }catch (Exception e){
                     e.printStackTrace();
                     if(callback != null){
@@ -161,6 +199,8 @@ public class OkhttpWorker extends HttpWorker {
                 if(callback != null){
                     callback.onFinish(true, HttpProblem.OK, null, bean);
                 }
+
+            }else{
 
             }
         }

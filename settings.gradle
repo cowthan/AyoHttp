@@ -1,1 +1,1 @@
-include ':app', ':ayohttp222', ':ayohttp', ':adapter-okhttp'
+include ':app', ':not-important', ':ayohttp', ':worker-okhttp', ':converter-fastjson'
