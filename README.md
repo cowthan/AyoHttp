@@ -33,6 +33,7 @@ http库，可以兼容okhttp，volly等底层库，便于切换和测试，附�
     * 整个框架仿照的是retrofit，主框架简单至极，worker和converter作为插件化子模块，想用哪个，就引用哪个
     * 在此感谢上面涉及到的三位作者
     * http原理blog：http://blog.csdn.net/lmj623565791/article/details/47911083
+    * 仿照Retrofit和OkHttpUtils，超时设置，cookie，https等的配置项，都使用okhttp和volly的原生设置，而不纳入框架内管理
 
 * 声明2：
     * 请求方式支持：
