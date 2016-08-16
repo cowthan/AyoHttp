@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -89,23 +90,29 @@ public class PersistentCookieStore implements CookieStore
     {
         String name = getCookieToken(cookie);
 
-        // Save cookie into local store, or remove if expired
-        if (!cookie.persistent())
+        if (cookie.persistent())
         {
             if (!cookies.containsKey(uri.host()))
+            {
                 cookies.put(uri.host(), new ConcurrentHashMap<String, Cookie>());
+            }
             cookies.get(uri.host()).put(name, cookie);
         } else
         {
-            if (cookies.containsKey(uri.toString()))
+            if (cookies.containsKey(uri.host()))
+            {
                 cookies.get(uri.host()).remove(name);
+            }else
+            {
+                return ;
+            }
         }
 
         // Save cookie into persistent store
         SharedPreferences.Editor prefsWriter = cookiePrefs.edit();
         prefsWriter.putString(uri.host(), TextUtils.join(",", cookies.get(uri.host()).keySet()));
         prefsWriter.putString(COOKIE_NAME_PREFIX + name, encodeCookie(new SerializableHttpCookie(cookie)));
-        prefsWriter.commit();
+        prefsWriter.apply();
     }
 
     protected String getCookieToken(Cookie cookie)
@@ -127,8 +134,26 @@ public class PersistentCookieStore implements CookieStore
     {
         ArrayList<Cookie> ret = new ArrayList<Cookie>();
         if (cookies.containsKey(uri.host()))
-            ret.addAll(cookies.get(uri.host()).values());
+        {
+            Collection<Cookie> cookies = this.cookies.get(uri.host()).values();
+            for (Cookie cookie : cookies)
+            {
+                if (isCookieExpired(cookie))
+                {
+                    remove(uri, cookie);
+                } else
+                {
+                    ret.add(cookie);
+                }
+            }
+        }
+
         return ret;
+    }
+
+    private static boolean isCookieExpired(Cookie cookie)
+    {
+        return cookie.expiresAt() < System.currentTimeMillis();
     }
 
     @Override
@@ -136,7 +161,7 @@ public class PersistentCookieStore implements CookieStore
     {
         SharedPreferences.Editor prefsWriter = cookiePrefs.edit();
         prefsWriter.clear();
-        prefsWriter.commit();
+        prefsWriter.apply();
         cookies.clear();
         return true;
     }
@@ -157,7 +182,7 @@ public class PersistentCookieStore implements CookieStore
                 prefsWriter.remove(COOKIE_NAME_PREFIX + name);
             }
             prefsWriter.putString(uri.host(), TextUtils.join(",", cookies.get(uri.host()).keySet()));
-            prefsWriter.commit();
+            prefsWriter.apply();
 
             return true;
         } else

@@ -1,9 +1,11 @@
 package org.ayo.http.ok;
 
+import android.util.Log;
+
 import com.zhy.http.okhttp.OkHttpUtils;
-import com.zhy.http.okhttp.builder.OkHttpRequestBuilder;
 import com.zhy.http.okhttp.builder.PostFormBuilder;
 import com.zhy.http.okhttp.callback.StringCallback;
+import com.zhy.http.okhttp.https.HttpsUtils;
 
 import org.ayo.http.AyoHttp;
 import org.ayo.http.HttpWorker;
@@ -21,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.Call;
 import okhttp3.Headers;
 import okhttp3.MediaType;
-import okhttp3.Request;
+import okhttp3.OkHttpClient;
 import okhttp3.Response;
 
 /**
@@ -36,11 +38,17 @@ public class OkhttpWorker extends HttpWorker {
         typeToken = request.token;
         request.intercepter.beforeRequest(request);
 
-        OkHttpUtils.getInstance().setConnectTimeout(30000, TimeUnit.MILLISECONDS); //连接超时，30秒
-        OkHttpUtils.getInstance().setReadTimeout(30000, TimeUnit.MILLISECONDS); //读超时，30秒
-        OkHttpUtils.getInstance().setWriteTimeout(30000, TimeUnit.MILLISECONDS); //写超时，30秒
-        //使用https，但是默认信任全部证书
-        OkHttpUtils.getInstance().setCertificates();
+        HttpsUtils.SSLParams sslParams = HttpsUtils.getSslSocketFactory(null, null, null);
+        //CookieJarImpl cookieJar = new CookieJarImpl(new PersistentCookieStore(getApplicationContext()));
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(30000, TimeUnit.MILLISECONDS)
+                .readTimeout(30000, TimeUnit.MILLISECONDS)
+                .writeTimeout(30000, TimeUnit.MILLISECONDS)
+                //.cookieJar(cookieJar)
+                .sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager)  //设置可访问所有的https网站
+                .build();
+        OkHttpUtils.initClient(okHttpClient);
+
 
         String url = request.url;
         //基于OkHttpUtils辅助类
@@ -148,12 +156,7 @@ public class OkhttpWorker extends HttpWorker {
 
     }
 
-    private void addHeader(OkHttpRequestBuilder builder, Map<String, String> headers){
-
-    }
-
-    public class MyStringCallback<T> extends StringCallback
-    {
+    public class MyStringCallback<T> extends StringCallback{
 
         private BaseHttpCallback<T> callback;
         AyoHttp request;
@@ -163,26 +166,22 @@ public class OkhttpWorker extends HttpWorker {
             this.request = request;
         }
 
+
         @Override
-        public void onBefore(Request request)
-        {
+        public void inProgress(float progress, long total, int id) {
+            Log.i("进度:", progress + "/" + total);
+            callback.onLoading((long) (progress*100), 100L);
+            super.inProgress(progress, total, id);
         }
 
         @Override
-        public void onAfter()
-        {
-        }
-
-        @Override
-        public void onError(Call call, Exception e)
-        {
+        public void onError(Call call, Exception e, int id) {
             e.printStackTrace();
             callback.onFinish(false, HttpProblem.SERVER_ERROR, new FailInfo(404, "1", e.getLocalizedMessage()), null);
         }
 
         @Override
-        public void onResponse(String response)
-        {
+        public void onResponse(String response, int id) {
             request.intercepter.beforeTopLevelConvert(response);
             String s = request.topLevelConverter.convert(response, callback);
             if(s != null){
@@ -206,14 +205,7 @@ public class OkhttpWorker extends HttpWorker {
         }
 
         @Override
-        public void inProgress(float progress)
-        {
-            callback.onLoading((long) (progress*100), 100L);
-        }
-
-        @Override
-        public String parseNetworkResponse(Response response) throws IOException {
-
+        public String parseNetworkResponse(Response response, int id) throws IOException {
             Map<String, String> m = new HashMap<>();
 
             Headers header = response.headers();
@@ -224,7 +216,7 @@ public class OkhttpWorker extends HttpWorker {
             }
 
             request.intercepter.responseHeader(m);
-            return super.parseNetworkResponse(response);
+            return super.parseNetworkResponse(response, id);
         }
     }
 

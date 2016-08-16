@@ -1,0 +1,39 @@
+apply plugin: 'com.android.application'
+
+Properties configer = new Properties()
+configer.load(new FileInputStream(file("../config.properties")))
+
+android {
+    compileSdkVersion Integer.valueOf(configer['compileSdkVersion'])
+    buildToolsVersion configer['buildToolsVersion']
+
+    defaultConfig {
+        applicationId "com.zhy.sample_okhttp"
+        minSdkVersion Integer.valueOf(configer['minSdkVersion'])
+        targetSdkVersion Integer.valueOf(configer['targetSdkVersion'])
+        versionCode Integer.valueOf(configer['versionCode_qq'])
+        versionName configer['versionName_qq']
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+
+    compile configer['lib_recyclerview']
+    compile configer['lib_design']
+    compile project(':converter-fastjson')
+    compile project(':ayohttp')
+}
+dependencies { compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile configer['lib_appcompat']
+
+    compile project(':worker-okhttp')
+    compile 'com.google.code.gson:gson:2.3.1'
+    compile 'com.squareup.okhttp3:okhttp-urlconnection:3.2.0'
+    //compile 'com.github.franmontiel:PersistentCookieJar:v0.9.3'
+}
