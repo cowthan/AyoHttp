@@ -13,12 +13,6 @@ public class HttpHelper {
 		return code >= 200 && code < 300;
 	}
 	
-	/**
-	 * use ? & make a full url
-	 * @param p_url
-	 * @param params
-	 * @return
-	 */
 	public static String makeURL(String p_url, Map<String, String> params) {
 		StringBuilder url = new StringBuilder(p_url);
 		if(url.indexOf("?")<0)

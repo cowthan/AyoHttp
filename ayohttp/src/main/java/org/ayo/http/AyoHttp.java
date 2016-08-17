@@ -40,7 +40,7 @@ public class AyoHttp {
 
     public String stringEntity;
 
-    public File file;  //post一个file，不知道这是什么原理，不过和表单提交不一样
+    public File file;
 
     public String url = "";
     public String method = "get";
@@ -155,11 +155,6 @@ public class AyoHttp {
 
     ///--------------
 
-    /**
-     * don't know how to pass this in volly, now just work in xutils
-     * @param entity
-     * @return
-     */
     public AyoHttp stringEntity(String entity){
         this.stringEntity = entity;
         return this;
@@ -203,14 +198,12 @@ public class AyoHttp {
 
     public void fire(){
 
-        //替换路径参数，类似http://www.xaax.com/id/{id}中的{id}
         if(this.pathParams.size() > 0){
             for(String key: this.pathParams.keySet()){
                 this.url = this.url.replace("{" + key + "}", this.pathParams.get(key) + "");
             }
         }
 
-        //如果是get请求，需要把param拼到url里
         this.url = HttpHelper.makeURL(this.url, this.queryStrings);
 
         worker.fire(this);

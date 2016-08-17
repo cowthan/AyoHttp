@@ -2,18 +2,6 @@ package org.ayo.http.callback;
 
 import org.ayo.http.converter.TypeToken;
 
-/**
- *
- * request.callback(
- * 		new GeniusHttpCallback<List<Article>>(Article.class, MyHttpResponse.class){
- * 			void onFinish(){}
- * 		}
- * 	).go();
- * 
- * @author cowthan
- *
- * @param <T>
- */
 public abstract class BaseHttpCallback<T> {
 
 	public BaseHttpCallback(){

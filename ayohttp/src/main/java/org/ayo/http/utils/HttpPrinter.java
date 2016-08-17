@@ -2,9 +2,6 @@ package org.ayo.http.utils;
 
 import org.ayo.http.AyoHttp;
 
-/**
- * Created by Administrator on 2016/4/11.
- */
 public class HttpPrinter {
 
     public static void printRequest(String flag, AyoHttp request){
