@@ -47,6 +47,8 @@ dependencies {
     compile ('com.github.akarnokd:rxjava-completable:1.0.0') {
         exclude module: 'rxjava'
     }
+
+    compile 'org.ayo:ayo-attacher:1.0.0'
 }
 
 
