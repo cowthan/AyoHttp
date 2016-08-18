@@ -1,6 +1,7 @@
 package com.android.volly.manager;
 
-import com.android.volley.Request;
+
+import com.android.volly.Request;
 
 /**
  * Abstract LoaderControler that implements LoadControler

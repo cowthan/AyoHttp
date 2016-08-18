@@ -1,9 +1,9 @@
 package com.android.volly.manager;
 
-import com.android.volley.NetworkResponse;
-import com.android.volley.Response.ErrorListener;
-import com.android.volley.Response.Listener;
-import com.android.volley.VolleyError;
+
+import com.android.volly.NetworkResponse;
+import com.android.volly.Response;
+import com.android.volly.VolleyError;
 
 /**
  * ByteArrayLoadController implements Volley Listener & ErrorListener
@@ -12,7 +12,7 @@ import com.android.volley.VolleyError;
  * 
  */
 public class ByteArrayLoadController extends AbsLoadController implements
-		Listener<NetworkResponse>, ErrorListener {
+		Response.Listener<NetworkResponse>, Response.ErrorListener {
 
 	private LoadListener mOnLoadListener;
 
