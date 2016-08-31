@@ -23,8 +23,6 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils;
 
-import com.android.volley.VolleyLog.MarkerLog;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collections;
@@ -58,7 +56,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     }
 
     /** An event log tracing the lifetime of this request; for debugging. */
-    private final MarkerLog mEventLog = MarkerLog.ENABLED ? new MarkerLog() : null;
+    private final VolleyLog.MarkerLog mEventLog = VolleyLog.MarkerLog.ENABLED ? new VolleyLog.MarkerLog() : null;
 
     /**
      * Request method of this request.  Currently supports GET, POST, PUT, DELETE, HEAD, OPTIONS,
@@ -121,7 +119,6 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * is provided by subclasses, who have a better idea of how to deliver an
      * already-parsed response.
      *
-     * @deprecated Use {@link #Request(int, String, com.android.volley.Response.ErrorListener)}.
      */
     @Deprecated
     public Request(String url, Response.ErrorListener listener) {
@@ -171,7 +168,6 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     }
 
     /**
-     * @return this request's {@link com.android.volley.Response.ErrorListener}.
      */
     public Response.ErrorListener getErrorListener() {
         return mErrorListener;
@@ -214,7 +210,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * Adds an event to this request's event log; for debugging.
      */
     public void addMarker(String tag) {
-        if (MarkerLog.ENABLED) {
+        if (VolleyLog.MarkerLog.ENABLED) {
             mEventLog.add(tag, Thread.currentThread().getId());
         } else if (mRequestBirthTime == 0) {
             mRequestBirthTime = SystemClock.elapsedRealtime();
@@ -230,7 +226,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         if (mRequestQueue != null) {
             mRequestQueue.finish(this);
         }
-        if (MarkerLog.ENABLED) {
+        if (VolleyLog.MarkerLog.ENABLED) {
             final long threadId = Thread.currentThread().getId();
             if (Looper.myLooper() != Looper.getMainLooper()) {
                 // If we finish marking off of the main thread, we need to

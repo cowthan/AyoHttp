@@ -17,7 +17,7 @@
 package com.android.volly;
 
 
-import com.android.volley.http.HttpResponse;
+import com.android.volly.http.HttpResponse;
 
 import java.util.Collections;
 import java.util.Map;

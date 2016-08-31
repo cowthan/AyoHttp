@@ -1,13 +1,12 @@
 package com.android.volly.manager;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkResponse;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.Response.ErrorListener;
-import com.android.volley.Response.Listener;
-import com.android.volley.http.HttpEntity;
-import com.android.volley.toolbox.HttpHeaderParser;
+
+import com.android.volly.AuthFailureError;
+import com.android.volly.NetworkResponse;
+import com.android.volly.Request;
+import com.android.volly.Response;
+import com.android.volly.http.HttpEntity;
+import com.android.volly.toolbox.HttpHeaderParser;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,13 +23,13 @@ import java.util.Map;
  */
 class ByteArrayRequest extends Request<NetworkResponse> {
 
-	private final Listener<NetworkResponse> mListener;
+	private final Response.Listener<NetworkResponse> mListener;
 
 	private Object mPostBody = null;
 
 	private HttpEntity httpEntity =null;
 
-	public ByteArrayRequest(int method, String url, Object postBody, Listener<NetworkResponse> listener, ErrorListener errorListener) {
+	public ByteArrayRequest(int method, String url, Object postBody, Response.Listener<NetworkResponse> listener, Response.ErrorListener errorListener) {
 		super(method, url, errorListener);
 		this.mPostBody = postBody;
 		this.mListener = listener;
