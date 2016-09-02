@@ -5,6 +5,12 @@ http库，可以兼容okhttp，volly等底层库，便于切换和测试，附�
 
 低仿Retrofit，但没那么多工厂模式，也不支持注解和RxJava，也没加入Retrofit的Adapter机制
 
+
+
+有用的就3个模块：ayohttp, converter-fastjson, worker-okhttp
+
+其他模块是retrofit，okhttp，okhttpUtils的demo测试
+
 ---------
 
 ## 1 基本套路
@@ -59,6 +65,17 @@ http库，可以兼容okhttp，volly等底层库，便于切换和测试，附�
 
 ## 2 使用
 
+* 引库，需要3个库，核心库，converter库，worker库
+    * 核心库提供了基本框架，但不具备实际功能
+        * compile 'org.ayo:ayo-http:v1.0.0'
+    * converter库提供了对业务字段的解析，现在只支持fastjson
+        * compile 'org.ayo.http:converter-fastjson:v1.0.0'
+    * worker库支持定制底层http实现，现在只支持okhttp3
+        * compile 'org.ayo.http:worker-okhttp:v1.0.0'
+
+* 项目代码
+    * 你需要自己提供一个状态字段解析器，因为各个项目都不一样，一般形式是：{ code: 0, msg: "错误原因", result:[]或{} }
+    * 日志相关，参考demo
 
 ```java
 
