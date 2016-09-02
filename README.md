@@ -62,6 +62,90 @@ http库，可以兼容okhttp，volly等底层库，便于切换和测试，附�
    * 所有授权和https的问题，本框架不做过多封装，但各个worker会暴露出各个库的配置项，可以直接配置，demo会给出
 
 
+OKHttp支持的请求方式：
+```jav
+Request request = new Request.Builder()
+        .url("https://api.github.com/markdown/raw")
+
+        //all request methods
+        .get()
+        .post(RequestBody.create(MEDIA_TYPE_MARKDOWN, file))
+        .post(RequestBody)
+        .put(RequestBody)
+        .delete()
+        .delete(RequestBody)
+        .head()
+        .patch(RequestBody)
+        .method(method, RequestBody)
+        ///
+
+        .addHeader(name, value)
+        .cacheControl(CacheControl)
+        .build();
+```
+
+RequestBody包括：
+```
+//post file
+public static final MediaType MEDIA_TYPE_MARKDOWN = MediaType.parse("text/x-markdown; charset=utf-8");
+RequestBody.create(MEDIA_TYPE_MARKDOWN, file)
+
+//post multipart：表单上传文件，可多文件上传，可附带post参数
+RequestBody requestBody = new MultipartBody.Builder()
+        .setType(MultipartBody.FORM)
+        .addFormDataPart("title", "Square Logo")
+        .addFormDataPart("image", "logo-square.png", RequestBody.create(MEDIA_TYPE_PNG, new File("website/static/logo-square.png")))
+        .build();
+
+//form表单：
+RequestBody formBody = new FormBody.Builder()
+        .add("search", "Jurassic Park")
+        .build();
+
+//post string
+String postBody = ""
+        + "Releases\n"
+        + "--------\n"
+        + "\n"
+        + " * _1.0_ May 6, 2013\n"
+        + " * _1.1_ June 15, 2013\n"
+        + " * _1.2_ August 11, 2013\n";
+RequestBody.create(MEDIA_TYPE_MARKDOWN, postBody)
+
+RequestBody.create支持：byte[], ByteString，File，String
+
+
+//带上传进度：需要拦截器，拦截上面构建的RequestBody
+Request request = new Request.Builder()
+    .url("https://publicobject.com/helloworld.txt")
+    .build();
+
+final ProgressListener progressListener = new ProgressListener() {
+  @Override public void update(long bytesRead, long contentLength, boolean done) {
+    System.out.println(bytesRead);
+    System.out.println(contentLength);
+    System.out.println(done);
+    System.out.format("%d%% done\n", (100 * bytesRead) / contentLength);
+  }
+};
+
+OkHttpClient client = new OkHttpClient.Builder()
+    .addNetworkInterceptor(new Interceptor() {
+      @Override public Response intercept(Chain chain) throws IOException {
+        Response originalResponse = chain.proceed(chain.request());
+        return originalResponse.newBuilder()
+            .body(new ProgressResponseBody(originalResponse.body(), progressListener))
+            .build();
+      }
+    })
+    .build();
+
+Response response = client.newCall(request).execute();
+
+
+
+```
+
 
 ## 2 使用
 
