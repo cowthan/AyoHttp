@@ -62,8 +62,8 @@ http库，可以兼容okhttp，volly等底层库，便于切换和测试，附�
    * 所有授权和https的问题，本框架不做过多封装，但各个worker会暴露出各个库的配置项，可以直接配置，demo会给出
 
 
-OKHttp支持的请求方式：
-```jav
+OKHttp支持的请求方式：以下代码是纯okhttp代码
+```java
 Request request = new Request.Builder()
         .url("https://api.github.com/markdown/raw")
 
@@ -86,7 +86,7 @@ Request request = new Request.Builder()
 
 RequestBody包括：
 ```
-//post file
+//post file：单文件上传，不以键值对的形式，应该也没法带其他post参数
 public static final MediaType MEDIA_TYPE_MARKDOWN = MediaType.parse("text/x-markdown; charset=utf-8");
 RequestBody.create(MEDIA_TYPE_MARKDOWN, file)
 
@@ -97,7 +97,7 @@ RequestBody requestBody = new MultipartBody.Builder()
         .addFormDataPart("image", "logo-square.png", RequestBody.create(MEDIA_TYPE_PNG, new File("website/static/logo-square.png")))
         .build();
 
-//form表单：
+//form表单：普通post
 RequestBody formBody = new FormBody.Builder()
         .add("search", "Jurassic Park")
         .build();
@@ -114,6 +114,34 @@ RequestBody.create(MEDIA_TYPE_MARKDOWN, postBody)
 
 RequestBody.create支持：byte[], ByteString，File，String
 
+
+//post streaming：自己构建RequestBody
+RequestBody requestBody = new RequestBody() {
+      @Override public MediaType contentType() {
+        return MEDIA_TYPE_MARKDOWN;
+      }
+
+      @Override public void writeTo(BufferedSink sink) throws IOException {
+        sink.writeUtf8("Numbers\n");
+        sink.writeUtf8("-------\n");
+        for (int i = 2; i <= 997; i++) {
+          sink.writeUtf8(String.format(" * %s = %s\n", i, factor(i)));
+        }
+      }
+
+      private String factor(int n) {
+        for (int i = 2; i < n; i++) {
+          int x = n / i;
+          if (x * i == n) return factor(x) + " × " + i;
+        }
+        return Integer.toString(n);
+      }
+    };
+
+    Request request = new Request.Builder()
+        .url("https://api.github.com/markdown/raw")
+        .post(requestBody)
+        .build();
 
 //带上传进度：需要拦截器，拦截上面构建的RequestBody
 Request request = new Request.Builder()
@@ -142,9 +170,16 @@ OkHttpClient client = new OkHttpClient.Builder()
 
 Response response = client.newCall(request).execute();
 
-
-
 ```
+
+
+* 其他问题：
+    * okhttp的CacheController
+    * okhttp的安全相关，Authenticate，Certificate，handshake，authenticator，CertificatePinner，trustManagerForCertificates
+    * okhttp的拦截器怎么用
+    * okhttp的cancel请求
+    * okhttp的Callback
+    * okhttp的execute和enqueue
 
 
 ## 2 使用
