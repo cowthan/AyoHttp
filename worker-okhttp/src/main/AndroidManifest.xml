@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.ayo.http.ok">
+    package="org.ayo.http.okhttp3">
 
     <application
         android:allowBackup="true"

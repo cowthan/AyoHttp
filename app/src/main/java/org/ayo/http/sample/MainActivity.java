@@ -10,7 +10,7 @@ import org.ayo.http.callback.BaseHttpCallback;
 import org.ayo.http.callback.FailInfo;
 import org.ayo.http.callback.HttpProblem;
 import org.ayo.http.converter.TypeToken;
-import org.ayo.http.ok.OkhttpWorker;
+import org.ayo.http.okhttp3.OkhttpWorker;
 import org.ayo.http.sample.model.RespRegist;
 import org.ayo.http.stream.StreamConverter;
 
@@ -55,8 +55,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onLoading(long current, long total) {
                         super.onLoading(current, total);
                     }
-                }, new TypeToken<List<RespRegist>>(){})
-                .fire();
+                }, new TypeToken<List<RespRegist>>(){}).fire();
 
 
     }

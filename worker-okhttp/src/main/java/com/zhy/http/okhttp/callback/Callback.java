@@ -9,7 +9,6 @@ public abstract class Callback<T>
     /**
      * UI Thread
      *
-     * @param request
      */
     public void onBefore(Request request, int id)
     {
@@ -18,7 +17,6 @@ public abstract class Callback<T>
     /**
      * UI Thread
      *
-     * @param
      */
     public void onAfter(int id)
     {
@@ -27,7 +25,6 @@ public abstract class Callback<T>
     /**
      * UI Thread
      *
-     * @param progress
      */
     public void inProgress(float progress, long total , int id)
     {
@@ -38,7 +35,6 @@ public abstract class Callback<T>
      * if you parse reponse code in parseNetworkResponse, you should make this method return true.
      *
      * @param response
-     * @return
      */
     public boolean validateReponse(Response response, int id)
     {

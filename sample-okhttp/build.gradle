@@ -27,7 +27,7 @@ dependencies {
     compile configer['lib_recyclerview']
     compile configer['lib_design']
     compile project(':converter-fastjson')
-    compile project(':ayohttp')
+    compile project(':ayo-http')
 }
 dependencies { compile fileTree(include: ['*.jar'], dir: 'libs')
     compile configer['lib_appcompat']
