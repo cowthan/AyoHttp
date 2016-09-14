@@ -5,6 +5,12 @@ http库，可以兼容okhttp，volly等底层库，便于切换和测试，附�
 
 低仿Retrofit，但没那么多工厂模式，也不支持注解和RxJava，也没加入Retrofit的Adapter机制
 
+
+
+有用的就3个模块：ayohttp, converter-fastjson, worker-okhttp
+
+其他模块是retrofit，okhttp，okhttpUtils的demo测试
+
 ---------
 
 ## 1 基本套路
@@ -56,9 +62,139 @@ http库，可以兼容okhttp，volly等底层库，便于切换和测试，附�
    * 所有授权和https的问题，本框架不做过多封装，但各个worker会暴露出各个库的配置项，可以直接配置，demo会给出
 
 
+OKHttp支持的请求方式：以下代码是纯okhttp代码
+```java
+Request request = new Request.Builder()
+        .url("https://api.github.com/markdown/raw")
+
+        //all request methods
+        .get()
+        .post(RequestBody.create(MEDIA_TYPE_MARKDOWN, file))
+        .post(RequestBody)
+        .put(RequestBody)
+        .delete()
+        .delete(RequestBody)
+        .head()
+        .patch(RequestBody)
+        .method(method, RequestBody)
+        ///
+
+        .addHeader(name, value)
+        .cacheControl(CacheControl)
+        .build();
+```
+
+RequestBody包括：
+```
+//post file：单文件上传，不以键值对的形式，应该也没法带其他post参数
+public static final MediaType MEDIA_TYPE_MARKDOWN = MediaType.parse("text/x-markdown; charset=utf-8");
+RequestBody.create(MEDIA_TYPE_MARKDOWN, file)
+
+//post multipart：表单上传文件，可多文件上传，可附带post参数
+RequestBody requestBody = new MultipartBody.Builder()
+        .setType(MultipartBody.FORM)
+        .addFormDataPart("title", "Square Logo")
+        .addFormDataPart("image", "logo-square.png", RequestBody.create(MEDIA_TYPE_PNG, new File("website/static/logo-square.png")))
+        .build();
+
+//form表单：普通post
+RequestBody formBody = new FormBody.Builder()
+        .add("search", "Jurassic Park")
+        .build();
+
+//post string
+String postBody = ""
+        + "Releases\n"
+        + "--------\n"
+        + "\n"
+        + " * _1.0_ May 6, 2013\n"
+        + " * _1.1_ June 15, 2013\n"
+        + " * _1.2_ August 11, 2013\n";
+RequestBody.create(MEDIA_TYPE_MARKDOWN, postBody)
+
+RequestBody.create支持：byte[], ByteString，File，String
+
+
+//post streaming：自己构建RequestBody
+RequestBody requestBody = new RequestBody() {
+      @Override public MediaType contentType() {
+        return MEDIA_TYPE_MARKDOWN;
+      }
+
+      @Override public void writeTo(BufferedSink sink) throws IOException {
+        sink.writeUtf8("Numbers\n");
+        sink.writeUtf8("-------\n");
+        for (int i = 2; i <= 997; i++) {
+          sink.writeUtf8(String.format(" * %s = %s\n", i, factor(i)));
+        }
+      }
+
+      private String factor(int n) {
+        for (int i = 2; i < n; i++) {
+          int x = n / i;
+          if (x * i == n) return factor(x) + " × " + i;
+        }
+        return Integer.toString(n);
+      }
+    };
+
+    Request request = new Request.Builder()
+        .url("https://api.github.com/markdown/raw")
+        .post(requestBody)
+        .build();
+
+//带上传进度：需要拦截器，拦截上面构建的RequestBody
+Request request = new Request.Builder()
+    .url("https://publicobject.com/helloworld.txt")
+    .build();
+
+final ProgressListener progressListener = new ProgressListener() {
+  @Override public void update(long bytesRead, long contentLength, boolean done) {
+    System.out.println(bytesRead);
+    System.out.println(contentLength);
+    System.out.println(done);
+    System.out.format("%d%% done\n", (100 * bytesRead) / contentLength);
+  }
+};
+
+OkHttpClient client = new OkHttpClient.Builder()
+    .addNetworkInterceptor(new Interceptor() {
+      @Override public Response intercept(Chain chain) throws IOException {
+        Response originalResponse = chain.proceed(chain.request());
+        return originalResponse.newBuilder()
+            .body(new ProgressResponseBody(originalResponse.body(), progressListener))
+            .build();
+      }
+    })
+    .build();
+
+Response response = client.newCall(request).execute();
+
+```
+
+
+* 其他问题：
+    * okhttp的CacheController
+    * okhttp的安全相关，Authenticate，Certificate，handshake，authenticator，CertificatePinner，trustManagerForCertificates
+    * okhttp的拦截器怎么用
+    * okhttp的cancel请求
+    * okhttp的Callback
+    * okhttp的execute和enqueue
+
 
 ## 2 使用
 
+* 引库，需要3个库，核心库，converter库，worker库
+    * 核心库提供了基本框架，但不具备实际功能
+        * compile 'org.ayo:ayo-http:v1.0.0'
+    * converter库提供了对业务字段的解析，现在只支持fastjson
+        * compile 'org.ayo.http:converter-fastjson:v1.0.0'
+    * worker库支持定制底层http实现，现在只支持okhttp3
+        * compile 'org.ayo.http:worker-okhttp:v1.0.0'
+
+* 项目代码
+    * 你需要自己提供一个状态字段解析器，因为各个项目都不一样，一般形式是：{ code: 0, msg: "错误原因", result:[]或{} }
+    * 日志相关，参考demo
 
 ```java
 

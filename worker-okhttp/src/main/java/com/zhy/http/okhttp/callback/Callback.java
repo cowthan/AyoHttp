@@ -31,11 +31,6 @@ public abstract class Callback<T>
 
     }
 
-    /**
-     * if you parse reponse code in parseNetworkResponse, you should make this method return true.
-     *
-     * @param response
-     */
     public boolean validateReponse(Response response, int id)
     {
         return response.isSuccessful();
@@ -44,7 +39,6 @@ public abstract class Callback<T>
     /**
      * Thread Pool Thread
      *
-     * @param response
      */
     public abstract T parseNetworkResponse(Response response, int id) throws Exception;
 

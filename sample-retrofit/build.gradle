@@ -25,5 +25,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile configer['lib_appcompat']
+
+    compile 'org.ayo:ayo-attacher:1.0.0'
     compile project(':ayo-retrofit')
 }
