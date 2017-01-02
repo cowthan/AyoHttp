@@ -16,7 +16,7 @@ public interface XXService {
 
     String BASE_URL = "http://chuanyue.iwomedia.cn/";  //会被ServiceFactory反射到
 
-    @GET("daogou/app/app")
+    @GET("daogou/app/app1")
     Observable<DaogouResponseWrapper<List<AppInfo>>> getAppList(@Query("os") String os, @Query("page") int page);
 
 }

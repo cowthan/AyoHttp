@@ -31,10 +31,6 @@ public abstract class Callback<T>
 
     }
 
-    /**
-     * if you parse reponse code in parseNetworkResponse, you should make this method return true.
-     *
-     */
     public boolean validateReponse(Response response, int id)
     {
         return response.isSuccessful();

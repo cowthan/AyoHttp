@@ -1,1 +1,1 @@
-include ':app', ':ayohttp', ':worker-okhttp', ':converter-fastjson', ':worker-volly', ':ayo-retrofit', ':sample-okhttp', ':sample-retrofit'
+include ':app', ':ayo-http', ':worker-okhttp', ':converter-fastjson', ':ayo-retrofit', ':sample-okhttp', ':sample-retrofit'

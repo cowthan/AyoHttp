@@ -1,4 +1,4 @@
-package org.ayo.http.ok;
+package org.ayo.http.okhttp3;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

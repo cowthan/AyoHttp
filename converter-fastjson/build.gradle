@@ -31,7 +31,6 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile configer['lib_appcompat']
-
-    compile project(':ayohttp')
-    compile 'com.alibaba:fastjson:1.2.8'
+    compile configer['lib_fastjson']
+    compile project(':ayo-http')
 }
