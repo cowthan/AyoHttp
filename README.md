@@ -172,6 +172,39 @@ Response response = client.newCall(request).execute();
 
 ```
 
+Okhttp解析发起请求：
+```
+private final OkHttpClient client = new OkHttpClient();
+同步：Response response = client.newCall(request).execute();
+异步：enqueue和callback，注意进度的callback需要自己实现（上传进度和下载进度）
+```
+
+OKHttp解析Response：
+```
+解析code，判断是否成功：
+response.code()
+response.isSuccessful()---code是200就是true
+
+解析Header
+response.header("Server")
+或者
+Headers responseHeaders = response.headers();
+for (int i = 0, size = responseHeaders.size(); i < size; i++) {
+  System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
+}
+
+解析Body：ReponseBody
+long contentLength = response.body().contentLenght()
+MediaType mime = response.body().contentType()
+
+String json = response.body().string()
+byte[] bytes = response.body().bytes()
+InputStream inputStream = response.body().byteStream()
+Reader reader = response.body().charStream()
+BufferedSource buffer = response.body().source();
+
+```
+
 
 * 其他问题：
     * okhttp的CacheController

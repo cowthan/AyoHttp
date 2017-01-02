@@ -1,6 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-group='org.ayo.http'
 
 Properties configer = new Properties()
 configer.load(new FileInputStream(file("../config.properties")))
@@ -29,7 +27,6 @@ android {
     }
 }
 
-apply from: "bintrayUpload.gradle"
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
