@@ -156,7 +156,7 @@ public class OkhttpWorker extends HttpWorker {
 
     }
 
-    public class MyStringCallback<T> extends StringCallback{
+    public class MyStringCallback<T> extends StringCallback {
 
         private BaseHttpCallback<T> callback;
         AyoHttp request;
@@ -183,25 +183,7 @@ public class OkhttpWorker extends HttpWorker {
         @Override
         public void onResponse(String response, int id) {
             request.intercepter.beforeTopLevelConvert(response);
-            String s = request.topLevelConverter.convert(response, callback);
-            if(s != null){
-                T bean = null;
-                try {
-                    bean = (T) request.resonseConverter.convert(s, typeToken);
-                }catch (Exception e){
-                    e.printStackTrace();
-                    if(callback != null){
-                        callback.onFinish(false, HttpProblem.DATA_ERROR, new FailInfo(2002, "2002", "Converter转换错误"), null);
-                    }
-                    return;
-                }
-                if(callback != null){
-                    callback.onFinish(true, HttpProblem.OK, null, bean);
-                }
-
-            }else{
-
-            }
+            AyoHttp.processStringResponse(response, request.topLevelConverter, request.resonseConverter, request.token, request.callback);
         }
 
         @Override

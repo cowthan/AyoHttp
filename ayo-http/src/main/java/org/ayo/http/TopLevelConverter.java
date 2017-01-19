@@ -1,11 +1,9 @@
 package org.ayo.http;
 
-import org.ayo.http.callback.BaseHttpCallback;
-
 /**
  */
-public interface TopLevelConverter {
+public interface TopLevelConverter<T extends StringTopLevelModel> {
 
-    String convert(String s, BaseHttpCallback callback);
+    T convert(String s);
 
 }

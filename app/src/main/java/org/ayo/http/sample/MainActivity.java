@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
                     .readTimeout(10000)
                     .worker(new OkhttpWorker())
                     .streamConverter(new StreamConverter.StringConverter())   //ByteArrayConverter   FileConverter
-                    .topLevelConverter(new SampleTopLevelConverter())
+                    .topLevelConverter(new TopLevelConverterTop())
                     .resonseConverter(new FastJsonConverter())
                     .intercept(new LogIntercepter());
     }

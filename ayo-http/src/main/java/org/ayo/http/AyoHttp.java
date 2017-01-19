@@ -3,6 +3,8 @@ package org.ayo.http;
 import android.text.TextUtils;
 
 import org.ayo.http.callback.BaseHttpCallback;
+import org.ayo.http.callback.FailInfo;
+import org.ayo.http.callback.HttpProblem;
 import org.ayo.http.converter.ResponseConverter;
 import org.ayo.http.converter.TypeToken;
 import org.ayo.http.stream.StreamConverter;
@@ -207,6 +209,50 @@ public class AyoHttp {
         this.url = HttpHelper.makeURL(this.url, this.queryStrings);
 
         worker.fire(this);
+    }
+
+    public Class<? extends StringTopLevelModel> classTop;
+
+    public static <T, E extends StringTopLevelModel> void processStringResponse(String respStr, TopLevelConverter<E> topLevelConverter, ResponseConverter<T> resonseConverter, TypeToken<T> typeToken, BaseHttpCallback<T> callback){
+
+        StringTopLevelModel resp = null;
+        try {
+            resp = topLevelConverter.convert(respStr);
+        }catch (Exception e){
+            e.printStackTrace();
+            callback.onFinish(false, HttpProblem.DATA_ERROR, new FailInfo(102, "102", "Converter转换错误，可能是服务器错误，也可能是本地Top逻辑错误"), null);
+            return;
+        }
+
+        if(resp != null){
+            if(resp.isOk()){
+
+                T bean = null;
+                try {
+                    if(typeToken == new TypeToken<String>(){}){
+                        bean = (T) resp.getResult();
+                    }else if(typeToken == new TypeToken<Boolean>(){}){
+                        bean = (T) Boolean.TRUE;
+                    }else{
+                        bean = (T) resonseConverter.convert(resp.getResult(), typeToken);
+                    }
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                    callback.onFinish(false, HttpProblem.DATA_ERROR, new FailInfo(104, "104", "业务数据解析错误"), null);
+                    return;
+                }
+
+                callback.onFinish(true, HttpProblem.OK, null, bean);
+
+            }else{
+                callback.onFinish(false, HttpProblem.LOGIC_FAIL, new FailInfo(101, resp.getErrorCode(), resp.getErrorMsg()), null);
+            }
+        }else{
+            callback.onFinish(false, HttpProblem.LOGIC_FAIL, new FailInfo(103, "103", "响应结果可能转换为了一个null对象"), null);
+        }
+
+
     }
 
 }
