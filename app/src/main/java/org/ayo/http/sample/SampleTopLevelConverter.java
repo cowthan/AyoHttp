@@ -18,7 +18,7 @@ public class SampleTopLevelConverter implements TopLevelConverter {
             return bean.result;
         }else{
             if(callback != null){
-                callback.onFinish(false, HttpProblem.LOGIC_FAIL, new FailInfo(200, "2001", bean.getErrorMsg()), null);
+                callback.onFinish(false, HttpProblem.LOGIC_FAIL, new FailInfo(bean.code, "2001", bean.getErrorMsg()), null);
             }
         }
 
