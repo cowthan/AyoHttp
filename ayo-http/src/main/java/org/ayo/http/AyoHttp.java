@@ -14,6 +14,10 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+
 /**
  */
 public class AyoHttp {
@@ -209,6 +213,37 @@ public class AyoHttp {
         this.url = HttpHelper.makeURL(this.url, this.queryStrings);
 
         worker.fire(this);
+    }
+
+    public <T> io.reactivex.Observable<T> start(TypeToken<T> typeToken){
+        this.token = typeToken;
+        ObservableOnSubscribe<T> os = new ObservableOnSubscribe<T>() {
+            @Override
+            public void subscribe(final ObservableEmitter<T> e) throws Exception {
+                callback = new BaseHttpCallback<T>() {
+                    @Override
+                    public void onFinish(boolean isSuccess, HttpProblem problem, FailInfo resp, T t) {
+                        if(isSuccess){
+                            e.onNext(t);
+                        }else{
+                            AyoHttpException ae = new AyoHttpException();
+                            ae.failInfo = resp;
+                            ae.problem = problem;
+                            e.onError(ae);
+                        }
+                        e.onComplete();
+                    }
+                };
+                fire();
+            }
+        };
+        Observable<T> observable = Observable.create(os);
+        return observable;
+    }
+
+    public static class AyoHttpException extends Exception{
+        public HttpProblem problem;
+        public FailInfo failInfo;
     }
 
     public Class<? extends StringTopLevelModel> classTop;

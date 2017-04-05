@@ -29,5 +29,6 @@ dependencies {
     compile configer['lib_design']
     compile project(':converter-fastjson')
     compile project(':worker-okhttp')
+    compile project(':worker-volly')
     compile project(':ayo-http')
 }

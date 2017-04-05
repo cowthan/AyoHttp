@@ -6,15 +6,16 @@ import android.widget.Toast;
 
 import org.ayo.converter.fastjson.FastJsonConverter;
 import org.ayo.http.AyoHttp;
-import org.ayo.http.callback.BaseHttpCallback;
-import org.ayo.http.callback.FailInfo;
-import org.ayo.http.callback.HttpProblem;
 import org.ayo.http.converter.TypeToken;
 import org.ayo.http.okhttp3.OkhttpWorker;
 import org.ayo.http.sample.model.RespRegist;
 import org.ayo.http.stream.StreamConverter;
 
 import java.util.List;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -41,24 +42,46 @@ public class MainActivity extends AppCompatActivity {
 //                .param("file-1", new File(""))
 //                .file(new File(""))
 //                .stringEntity("hahahahahahahah哈哈哈哈哈哈哈哈lddddddddd2222222222")
-                .callback(new BaseHttpCallback<List<RespRegist>>() {
-                    @Override
-                    public void onFinish(boolean isSuccess, HttpProblem problem, FailInfo resp, List<RespRegist> respRegist) {
-                        if(isSuccess){
-                            Toast.makeText(getApplicationContext(), "注册成功--" + respRegist.size(), Toast.LENGTH_SHORT).show();
-                        }else{
-                            Toast.makeText(getApplicationContext(), "注册失败：" + resp.dataErrorReason, Toast.LENGTH_SHORT).show();
-                        }
-                    }
 
-                    @Override
-                    public void onLoading(long current, long total) {
-                        super.onLoading(current, total);
-                    }
-                }, new TypeToken<List<RespRegist>>(){}).fire();
 
+
+                ///测正常http
+//                .callback(new BaseHttpCallback<List<RespRegist>>() {
+//                    @Override
+//                    public void onFinish(boolean isSuccess, HttpProblem problem, FailInfo resp, List<RespRegist> respRegist) {
+//                        if(isSuccess){
+//                            Toast.makeText(getApplicationContext(), "注册成功--" + respRegist.size(), Toast.LENGTH_SHORT).show();
+//                        }else{
+//                            Toast.makeText(getApplicationContext(), "注册失败：" + resp.dataErrorReason, Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onLoading(long current, long total) {
+//                        super.onLoading(current, total);
+//                    }
+//                }, new TypeToken<List<RespRegist>>(){}).fire();
+
+                ///测RxJava
+                .start(new TypeToken<List<RespRegist>>(){})
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+
+                .subscribe(new Consumer<List<RespRegist>>() {
+                    @Override
+                    public void accept(List<RespRegist> respRegists) throws Exception {
+                        Toast.makeText(getApplicationContext(), "注册成功--" + respRegists.size(), Toast.LENGTH_SHORT).show();
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        AyoHttp.AyoHttpException e = (AyoHttp.AyoHttpException) throwable;
+                        Toast.makeText(getApplicationContext(), "注册失败：" + e.failInfo.dataErrorReason, Toast.LENGTH_SHORT).show();
+                    }
+                });
 
     }
+
 
     public AyoHttp getRequest(){
         return AyoHttp.request()
