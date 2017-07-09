@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
                         if(isSuccess){
                             Toast.makeText(getApplicationContext(), "注册成功--" + respRegist, Toast.LENGTH_SHORT).show();
                         }else{
-                            Toast.makeText(getApplicationContext(), "注册失败：" + failInfo.reason, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "注册失败：" + failInfo.code + ", " + failInfo.reason, Toast.LENGTH_SHORT).show();
                         }
                     }
 

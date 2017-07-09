@@ -10,6 +10,7 @@ import org.ayo.http.callback.BaseHttpCallback;
 import org.ayo.http.callback.FailInfo;
 import org.ayo.http.callback.HttpProblem;
 import org.ayo.http.converter.TypeToken;
+import org.ayo.http.impl.log.LoggingInterceptor;
 import org.ayo.http.impl.progress.ProgressHelper;
 import org.ayo.http.impl.progress.ProgressRequestBody;
 import org.ayo.http.impl.progress.ProgressRequestListener;
@@ -57,7 +58,9 @@ public class OkhttpWorker extends HttpWorker {
                 .readTimeout(30000, TimeUnit.MILLISECONDS)
                 .writeTimeout(30000, TimeUnit.MILLISECONDS)
                 //.cookieJar(cookieJar)
+                .addInterceptor(new LoggingInterceptor())
                 .sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager);  //设置可访问所有的https网站
+
 //                .build();
         mOkHttpClient = okHttpClientBuilder.build();
         handler = new Handler(Looper.getMainLooper());
@@ -179,8 +182,7 @@ public class OkhttpWorker extends HttpWorker {
                 }
             }
         });
-        OkHttpClient okHttpClient = okHttpClientBuilder.build();
-        ProgressHelper.addProgressResponseListener(okHttpClient, new ProgressResponseListener() {
+        OkHttpClient okHttpClient = ProgressHelper.addProgressResponseListener(okHttpClientBuilder, new ProgressResponseListener() {
             @Override
             public void onResponseProgress(long bytesRead, long contentLength, boolean done) {
                 if(callback != null){
@@ -216,7 +218,7 @@ public class OkhttpWorker extends HttpWorker {
                     public void run() {
                         request.intercepter.responseHeader(getHeaderMap(response));
                         request.intercepter.beforeTopLevelConvert(respStr + ",-----," + response.message());
-                        if(response.isSuccessful() ){
+                        if(!response.isSuccessful() ){
                             FailInfo failInfo = new FailInfo(response.code(),  respStr);
                             callback.onFinish(false, HttpProblem.SERVER_ERROR, failInfo, null);
                             return;
@@ -265,14 +267,14 @@ public class OkhttpWorker extends HttpWorker {
         init(request);
         Request req = parseToOkHttpRequest(request, progressRequestListener);
         OkHttpClient okHttpClient = okHttpClientBuilder.build();
-        if(progressResponseListener != null) ProgressHelper.addProgressResponseListener(okHttpClient, progressResponseListener);
+        if(progressResponseListener != null) okHttpClient = ProgressHelper.addProgressResponseListener(okHttpClientBuilder, progressResponseListener);
         Call call = okHttpClient.newCall(req);
         try {
             tryToAddNewCall(call, req.tag());
             Response response = call.execute();
             tryToRemoveCall(call);
             request.intercepter.beforeTopLevelConvert(response.body().string() + ",-----," + response.message());
-            if(response.isSuccessful()){
+            if(!response.isSuccessful()){
                 FailInfo failInfo = new FailInfo(response.code(),  response.networkResponse().body().string());
                 AyoResponse<T> r = new AyoResponse<>();
                 r.failInfo = failInfo;

@@ -17,11 +17,9 @@ public class ProgressHelper {
      * @param progressListener 进度回调接口
      * @return 包装后的OkHttpClient，使用clone方法返回
      */
-    public static OkHttpClient addProgressResponseListener(OkHttpClient client, final ProgressResponseListener progressListener){
+    public static OkHttpClient addProgressResponseListener(OkHttpClient.Builder builder, final ProgressResponseListener progressListener){
         //克隆
-        OkHttpClient clone = client;
-        //增加拦截器
-        clone.networkInterceptors().add(new Interceptor() {
+        OkHttpClient clone = builder.addInterceptor(new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
                 //拦截
@@ -31,7 +29,7 @@ public class ProgressHelper {
                         .body(new ProgressResponseBody(originalResponse.body(), progressListener))
                         .build();
             }
-        });
+        }).build();
         return clone;
     }
 
