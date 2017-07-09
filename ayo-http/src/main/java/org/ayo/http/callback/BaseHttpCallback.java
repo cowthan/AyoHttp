@@ -10,7 +10,7 @@ public abstract class BaseHttpCallback<T> {
 	
 	public abstract void onFinish(boolean isSuccess, HttpProblem problem, FailInfo resp, T t);
 	
-	public void onLoading(long current, long total){
+	public void onLoading(boolean isUpload, long current, long total){
 		
 	}
 

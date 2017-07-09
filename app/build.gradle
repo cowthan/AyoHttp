@@ -27,7 +27,5 @@ dependencies {
     compile configer['lib_appcompat']
     compile configer['lib_recyclerview']
     compile configer['lib_design']
-    compile project(':converter-fastjson')
-    compile project(':worker-okhttp')
     compile project(':ayo-http')
 }

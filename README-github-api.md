@@ -110,7 +110,8 @@ curl -i -u "username:password" https://api.github.com/users/defunkt
         * 这个就是github文档里描述的web flow
     * 也可以在github个人主页里设置personal access token，直接把token给别人
         * 这个方式可以选择token对应的权限
-        * 下面给个图
+        * 下面给个图  
+        
 ![](./img/a1.png)
 
 * 通过api来请求授权：  

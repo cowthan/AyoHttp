@@ -1,6 +1,6 @@
 package org.ayo.http.sample;
 
-import org.ayo.http.AyoHttp;
+import org.ayo.http.AyoRequest;
 import org.ayo.http.HttpIntercepter;
 import org.ayo.http.utils.HttpHelper;
 import org.ayo.http.utils.HttpPrinter;
@@ -11,13 +11,13 @@ import java.util.Map;
  */
 public class LogIntercepter extends HttpIntercepter {
 
-    private String flag = "";
+    private Object flag = "";
 
     @Override
-    public void beforeRequest(AyoHttp req) {
+    public void beforeRequest(AyoRequest req) {
         //打印请求信息
-        flag = req.flag;
-        HttpPrinter.printRequest(req.flag + "  ", req);
+        flag = req.tag;
+        HttpPrinter.printRequest(req.tag + "  ", req);
     }
 
     @Override

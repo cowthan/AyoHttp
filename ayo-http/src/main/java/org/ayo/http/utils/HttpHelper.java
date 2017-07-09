@@ -1,6 +1,7 @@
 package org.ayo.http.utils;
 
 
+import java.io.File;
 import java.util.Map;
 
 
@@ -41,4 +42,9 @@ public class HttpHelper {
 		}
     	
     }
+
+    public static String getMediaType(File f){
+		return "application/json; charset=utf-8";
+	}
+
 }

@@ -24,16 +24,14 @@ android {
 
 dependencies {
 
-    compile configer['lib_recyclerview']
-    compile configer['lib_design']
-    compile project(':converter-fastjson')
-    compile project(':ayo-http')
+
 }
 dependencies { compile fileTree(include: ['*.jar'], dir: 'libs')
     compile configer['lib_appcompat']
 
-    compile project(':worker-okhttp')
     compile 'com.google.code.gson:gson:2.3.1'
     compile 'com.squareup.okhttp3:okhttp-urlconnection:3.2.0'
+    compile configer['lib_recyclerview']
+    compile configer['lib_design']
     //compile 'com.github.franmontiel:PersistentCookieJar:v0.9.3'
 }

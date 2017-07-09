@@ -1,10 +1,10 @@
 package org.ayo.http.utils;
 
-import org.ayo.http.AyoHttp;
+import org.ayo.http.AyoRequest;
 
 public class HttpPrinter {
 
-    public static void printRequest(String flag, AyoHttp request){
+    public static void printRequest(String flag, AyoRequest request){
         try {
             LogInner.debug(flag + "--" + "--------------------");
             LogInner.debug(flag + "--" + "request param：");

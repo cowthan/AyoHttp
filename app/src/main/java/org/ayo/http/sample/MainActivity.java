@@ -2,19 +2,18 @@ package org.ayo.http.sample;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
-import org.ayo.converter.fastjson.FastJsonConverter;
-import org.ayo.http.AyoHttp;
+import org.ayo.http.AyoRequest;
 import org.ayo.http.callback.BaseHttpCallback;
 import org.ayo.http.callback.FailInfo;
 import org.ayo.http.callback.HttpProblem;
 import org.ayo.http.converter.TypeToken;
-import org.ayo.http.okhttp3.OkhttpWorker;
-import org.ayo.http.sample.model.RespRegist;
+import org.ayo.http.impl.FastJsonConverter;
+import org.ayo.http.impl.OkhttpWorker;
 import org.ayo.http.stream.StreamConverter;
 
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        getRequest().flag("测试接口")
+        getRequest().tag("测试接口")
                 .actionGet()
                 .url("http://chuanyue.iwomedia.cn/daogou/app/app")
                 .header("deviceId", "11122334")
@@ -41,33 +40,52 @@ public class MainActivity extends AppCompatActivity {
 //                .param("file-1", new File(""))
 //                .file(new File(""))
 //                .stringEntity("hahahahahahahah哈哈哈哈哈哈哈哈lddddddddd2222222222")
-                .callback(new BaseHttpCallback<List<RespRegist>>() {
+                //测正常http
+                .callback(new BaseHttpCallback<String>() {
                     @Override
-                    public void onFinish(boolean isSuccess, HttpProblem problem, FailInfo resp, List<RespRegist> respRegist) {
+                    public void onFinish(boolean isSuccess, HttpProblem problem, FailInfo failInfo, String respRegist) {
                         if(isSuccess){
-                            Toast.makeText(getApplicationContext(), "注册成功--" + respRegist.size(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "注册成功--" + respRegist, Toast.LENGTH_SHORT).show();
                         }else{
-                            Toast.makeText(getApplicationContext(), "注册失败：" + resp.dataErrorReason, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "注册失败：" + failInfo.reason, Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
-                    public void onLoading(long current, long total) {
-                        super.onLoading(current, total);
+                    public void onLoading(boolean isUpload, long current, long total) {
+                        Log.e("http", isUpload + "， " + current + "/" + total);
                     }
-                }, new TypeToken<List<RespRegist>>(){}).fire();
+                }, new TypeToken<String>(){}).fire();
 
+                ///测RxJava
+//                .start(new TypeToken<List<RespRegist>>(){})
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//
+//                .subscribe(new Consumer<List<RespRegist>>() {
+//                    @Override
+//                    public void accept(List<RespRegist> respRegists) throws Exception {
+//                        Toast.makeText(getApplicationContext(), "注册成功--" + respRegists.size(), Toast.LENGTH_SHORT).show();
+//                    }
+//                }, new Consumer<Throwable>() {
+//                    @Override
+//                    public void accept(Throwable throwable) throws Exception {
+//                        AyoRequest.AyoHttpException e = (AyoRequest.AyoHttpException) throwable;
+//                        Toast.makeText(getApplicationContext(), "注册失败：" + e.failInfo.reason, Toast.LENGTH_SHORT).show();
+//                    }
+//                });
 
     }
 
-    public AyoHttp getRequest(){
-        return AyoHttp.request()
+
+    public AyoRequest getRequest(){
+        return AyoRequest.request()
                     .connectionTimeout(10000)
                     .writeTimeout(10000)
                     .readTimeout(10000)
                     .worker(new OkhttpWorker())
                     .streamConverter(new StreamConverter.StringConverter())   //ByteArrayConverter   FileConverter
-                    .topLevelConverter(new SampleTopLevelConverter())
+                    .topLevelConverter(new TopLevelConverterTop())
                     .resonseConverter(new FastJsonConverter())
                     .intercept(new LogIntercepter());
     }

@@ -5,9 +5,11 @@ http库，可以兼容okhttp，volly等底层库，便于切换和测试，附�
 
 低仿Retrofit，但没那么多工厂模式，也不支持注解和RxJava，也没加入Retrofit的Adapter机制
 
+另外，关于网络性能优化，参考：  
+http://www.trinea.cn/android/android-http-api-compare/  
+http://www.trinea.cn/android/mobile-performance-optimization/
 
-
-有用的就3个模块：ayohttp, converter-fastjson, worker-okhttp
+有用的就3个模块：ayo-http, converter-fastjson, worker-okhttp
 
 其他模块是retrofit，okhttp，okhttpUtils的demo测试
 
@@ -171,6 +173,33 @@ OkHttpClient client = new OkHttpClient.Builder()
 Response response = client.newCall(request).execute();
 
 ```
+
+关于MediaType：这个其实是http header里的contentType和charset俩东西
+* 在RequestBody.create(MediaType, String或File）时，需要手动传入MediaType
+* 在FormBody里，这个值是：application/x-www-form-urlencoded
+* 在Multipart里，这个值是：multipart/mixed
+* post  string时，值是类似：application/json; charset=utf-8
+* 上传文件时（post file形式，非multipart形式）：
+    * 文本文件markdown，值是：text/x-markdown; charset=utf-8
+    * 文件是png
+    
+关于cancel：取消请求
+* 首先得给RequestBody设置一个tag
+* call.cancel(tag)
+* okttpClient.dispatcher().cancelAll();
+* 就看call.cancel(tag)
+    * mOkHttpClient.newCall(req).enqueue或execute
+    * newCall返回的是RealCall的对象
+    * RealCall的cancel调用了HttpEngine的cancel
+    * HttpEngine调用了StreamAllocation的cancel
+    * HttpEngine里调用了这俩：
+        * HttpStream streamToCancel的cancel，估计是读写的流
+        * RealConnection connectionToCancel，管理底层socket连接
+     * 所以okhttp的cancel是真正的cancel
+* 再看volly的cancel：
+    * mRequestQueue.cancelAll(tag)
+    * 调用了Request.cancel()
+    * 这里面就设置了isCanceled = true，估计不会去关闭底层IO流和socket，而只是切断了回调
 
 Okhttp解析发起请求：
 ```

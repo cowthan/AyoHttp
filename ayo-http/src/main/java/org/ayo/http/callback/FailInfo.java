@@ -11,13 +11,17 @@ package org.ayo.http.callback;
  */
 public class FailInfo {
 
-    public int errorCode;
-    public String dataErrorCode;
-    public String dataErrorReason;
+    public int code;
+//    public String dataErrorCode;
+    public String reason;
 
-    public FailInfo(int errorCode, String dataErrorCode, String dataErrorReason) {
-        this.errorCode = errorCode;
-        this.dataErrorCode = dataErrorCode;
-        this.dataErrorReason = dataErrorReason;
+    public FailInfo(int code, String reason) {
+        this.code = code;
+        this.reason = reason;
     }
+    //    public FailInfo(int errorCode, String dataErrorCode, String dataErrorReason) {
+//        this.errorCode = errorCode;
+//        this.dataErrorCode = dataErrorCode;
+//        this.dataErrorReason = dataErrorReason;
+//    }
 }

@@ -7,7 +7,7 @@ import java.util.Map;
  */
 public abstract class HttpIntercepter {
 
-    public abstract void beforeRequest(AyoHttp req);
+    public abstract void beforeRequest(AyoRequest req);
 
     public abstract void responseHeader(Map<String, String> header);
 
